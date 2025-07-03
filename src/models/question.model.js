@@ -13,12 +13,12 @@ const testCaseSchema = new mongoose.Schema({
 
 const questionSchema = new mongoose.Schema(
   {
-    tile: {
+    title: {
       type: String,
       required: true,
     },
     description: {
-      type: true,
+      type: String,
       required: true,
     },
     difficulty: {
@@ -27,7 +27,7 @@ const questionSchema = new mongoose.Schema(
       required: true,
     },
     tags: {
-      type: String,
+      type: [String],
       required: true,
     },
     testCases: {
