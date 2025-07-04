@@ -24,7 +24,6 @@ const submissionSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["passed", "failed"],
-      required: true,
     },
     score: {
       type: Number,

@@ -16,8 +16,10 @@ app.use(cookieParser());
 
 import userRouter from "./src/routes/user.routes.js";
 import questionRouter from "./src/routes/question.routes.js";
+import submissionRouter from "./src/routes/submission.routes.js";
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/question", questionRouter);
+app.use("/api/v1/submission", submissionRouter);
 
 export default app;

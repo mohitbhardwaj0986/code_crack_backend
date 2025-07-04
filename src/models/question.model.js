@@ -2,12 +2,16 @@ import mongoose from "mongoose";
 
 const testCaseSchema = new mongoose.Schema({
   input: {
-    type: String,
+    type: String, 
     required: true,
   },
   output: {
     type: String,
     required: true,
+  },
+  isPublic: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -29,6 +33,20 @@ const questionSchema = new mongoose.Schema(
     tags: {
       type: [String],
       required: true,
+    },
+    functionName: {
+      type: String,
+      required: true,
+    },
+    starterCode: {
+      type: String,
+      required: true,
+    },
+    constraints: {
+      type: String,
+    },
+    examples: {
+      type: [String], 
     },
     testCases: {
       type: [testCaseSchema],

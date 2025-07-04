@@ -9,9 +9,20 @@ const createQuestion = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Not authorized");
   }
 
-  const { title, description, difficulty, tags, testCases } = req.body;
+  const {
+    title,
+    description,
+    difficulty,
+    tags,
+    testCases,
+    functionName,
+    starterCode,
+    constraints,
+    examples,
+  } = req.body;
+
   if (
-    [title, description, difficulty].some(
+    [title, description, difficulty, functionName, starterCode].some(
       (field) => typeof field !== "string" || field.trim() === ""
     ) ||
     !Array.isArray(tags) ||
@@ -19,7 +30,7 @@ const createQuestion = asyncHandler(async (req, res) => {
     !Array.isArray(testCases) ||
     testCases.length === 0
   ) {
-    throw new ApiError(400, "All fields are required and must be valid");
+    throw new ApiError(400, "All required fields must be valid");
   }
 
   const question = await Question.create({
@@ -27,6 +38,10 @@ const createQuestion = asyncHandler(async (req, res) => {
     description,
     difficulty,
     tags,
+    functionName,
+    starterCode,
+    constraints,
+    examples,
     testCases,
     createBy: req?.user?._id,
   });
@@ -55,6 +70,10 @@ const updateQuestion = asyncHandler(async (req, res) => {
     "difficulty",
     "tags",
     "testCases",
+    "functionName",
+    "starterCode",
+    "constraints",
+    "examples",
   ];
   for (const key of allowedFields) {
     if (req.body[key] !== undefined) {
@@ -131,6 +150,14 @@ const getSingleQuestion = asyncHandler(async (req, res) => {
     "createBy",
     "fullName"
   );
+
+  if (!question) {
+    throw new ApiError(404, "Question not found");
+  }
+
+  if (req.user.role !== "admin") {
+    question.testCases = question.testCases.filter((tc) => tc.isPublic);
+  }
   return res
     .status(200)
     .json(new ApiResponse(200, question, "Question fetched seccessfully"));
