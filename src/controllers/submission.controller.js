@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { runUserCode } from "../utils/codeRunner.js";
 
-const generateTestCode = (userCode, functionName, testCases) => {
+export const generateTestCode = (userCode, functionName, testCases) => {
   let testCode = "";
 
   testCases.forEach((tc, i) => {
@@ -22,29 +22,23 @@ console.log("TC${i + 1}:" +
 const createSubmission = asyncHandler(async (req, res) => {
   const { id: questionId } = req.params;
   const { code, language } = req.body;
-
   const userId = req.user._id;
 
-  // ✅ 1. Fetch the question
   const question = await Question.findById(questionId);
   if (!question) throw new ApiError(404, "Question not found");
 
-  // ✅ 2. Prepare test cases
-  const allTestCases = question.testCases || [];
+  const testCases = question.testCases || [];
   const functionName = question.functionName;
 
-  // ✅ 3. Combine code + test runner
-  const codeToExecute = generateTestCode(code, functionName, allTestCases);
+  const codeToExecute = generateTestCode(code, functionName, testCases);
 
-  // ✅ 4. Execute code (you’ll create runUserCode)
   let result;
   try {
-    result = await runUserCode(codeToExecute); // { passed, details }
+   result = await runUserCode(codeToExecute, language); // { passed, details }
   } catch (err) {
-    throw new ApiError(400, "Code execution error: " + err.message);
+    throw new ApiError(400, "Execution failed: " + err.message);
   }
 
-  // ✅ 5. Save the submission
   const submission = await Submission.create({
     user: userId,
     question: questionId,
@@ -54,17 +48,17 @@ const createSubmission = asyncHandler(async (req, res) => {
     score: result.passed ? 100 : 0,
   });
 
-  res
-    .status(201)
-    .json(
-      new ApiResponse(
-        201,
-        { submission, result: result.details },
-        "Submission result"
-      )
-    );
+  res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        submission,
+        result: result.details,
+      },
+      "Submission result"
+    )
+  );
 });
-
 const getSubmissionsByUser = asyncHandler(async (req, res) => {
   const { id: userId } = req.params;
 
