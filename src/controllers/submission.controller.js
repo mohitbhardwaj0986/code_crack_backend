@@ -59,6 +59,7 @@ const createSubmission = asyncHandler(async (req, res) => {
     )
   );
 });
+
 const getSubmissionsByUser = asyncHandler(async (req, res) => {
   const { id: userId } = req.params;
 
@@ -72,7 +73,6 @@ const getSubmissionsByUser = asyncHandler(async (req, res) => {
 
 const getSubmissionsByQuestion = asyncHandler(async (req, res) => {
   const { id: questionId } = req.params;
-
   const submissions = await Submission.find({ question: questionId })
     .populate("user", "fullName")
     .sort({ createdAt: -1 });
@@ -83,6 +83,7 @@ const getSubmissionsByQuestion = asyncHandler(async (req, res) => {
 
 const getUserSubmissionsForQuestion = asyncHandler(async (req, res) => {
   const { userId, questionId } = req.params;
+  
   const submissions = await Submission.find({
     user: userId,
     question: questionId,
