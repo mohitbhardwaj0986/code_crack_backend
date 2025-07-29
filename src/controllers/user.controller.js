@@ -2,7 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -219,17 +219,22 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateAvatar = asyncHandler(async (req, res) => {
-  const fileLocalPath = req.file?.path;
-  if (!fileLocalPath) {
+  const fileBuffer = req?.file?.buffer;
+  const fileFormat = req.file.mimetype.split("/")[1];
+
+  if (!fileBuffer) {
     throw new ApiError(400, "No file uploaded");
   }
-  
-  const avatarUploadResult = await uploadOnCloudinary(fileLocalPath);
+
+  const avatarUploadResult = await uploadBufferToCloudinary(
+    fileBuffer,
+    fileFormat
+  );
   if (!avatarUploadResult) {
     throw new ApiError(500, "Error in uploading image");
   }
-  
-  console.log(fileLocalPath);
+
+
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
