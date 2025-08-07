@@ -120,29 +120,18 @@ const getAllQuestions = asyncHandler(async (req, res) => {
     filter.title = { $regex: req.query.search, $options: "i" };
   }
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
 
-  const total = await Question.countDocuments(filter);
-  const questions = await Question.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+  const questions = await Question.find(filter).sort({ createdAt: -1 });
 
   return res.status(200).json(
     new ApiResponse(
       200,
-      {
-        questions,
-        total,
-        page,
-        totalPages: Math.ceil(total / limit),
-      },
+      questions,
       "Fetched all questions"
     )
   );
 });
+
 
 const getSingleQuestion = asyncHandler(async (req, res) => {
   const { id: quesitonId } = req.params;

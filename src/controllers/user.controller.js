@@ -178,11 +178,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   if (!oldPassword || !newPassword) {
     throw new ApiError(401, "required old Pasword or new Password");
   }
+  
   const user = await User.findById(req.user?._id);
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
   if (!isPasswordCorrect) {
     throw new ApiError(400, "Invalid old password");
   }
+
 
   user.password = newPassword;
   await user.save({ validateBeforeSave: false });
@@ -198,6 +200,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email } = req.body;
+  
   if (!fullName && !email) {
     throw new ApiError(401, "At least One field is required");
   }
@@ -213,6 +216,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
     { new: true }
   ).select("-password -refreshToken");
+
+  
   return res
     .status(200)
     .json(new ApiResponse(200, user, "Account detials updated successfully"));

@@ -63,9 +63,10 @@ const createSubmission = asyncHandler(async (req, res) => {
 const getSubmissionsByUser = asyncHandler(async (req, res) => {
   const { id: userId } = req.params;
 
-  const submissions = await Submission.find(userId)
-    .populate("question", "title difficulty")
-    .sort({ createdAt: -1 });
+  
+  const submissions = await Submission.find({user:userId})
+
+  
   return res
     .status(200)
     .json(new ApiResponse(200, submissions, "User submissions"));
